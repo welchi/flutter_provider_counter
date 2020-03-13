@@ -1,64 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  const MyApp({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+      home: ChangeNotifierProvider<_Counter>(
+        create: (_) => _Counter(),
+        child: const _HomePage(title: 'Provider Counter Demo'),
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
+class _HomePage extends StatelessWidget {
+  const _HomePage({
+    Key key,
+    this.title,
+  }) : super(key: key);
   final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
+        title: Text(
+          title,
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+          child: Icon(Icons.add),
+          onPressed: () {
+            Provider.of<_Counter>(context, listen: false).increment();
+          }),
+      body: const _Message(),
     );
+  }
+}
+
+class _Message extends StatelessWidget {
+  const _Message({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        Provider.of<_Counter>(context).message,
+        style: Theme.of(context).textTheme.display1,
+      ),
+    );
+  }
+}
+
+class _Counter with ChangeNotifier {
+  int _count = 0;
+  void increment() {
+    _count++;
+    notifyListeners();
+  }
+
+  String get message {
+    return _count.toString();
   }
 }
